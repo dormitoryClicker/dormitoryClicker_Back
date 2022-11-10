@@ -11,15 +11,8 @@ class MachineController {
             return
         }
 
-        Machine.getAllReservationByDormitory(dormitory, (err, result) => {
-            if(err) {               
-                console.log(err);
-                res.status(500).send({
-                    message: `Server Unavailabled`
-                })                
-            }
-            res.send(result);
-        })
+        let machines = await Machine.getAllReservationByDormitory(dormitory);
+        res.send(machines)
     }
 }
 
