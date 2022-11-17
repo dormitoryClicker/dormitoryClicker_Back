@@ -1,5 +1,5 @@
-module.exports = app => {
-    const users = require('../controllers/userController.js')
+// module.exports = app => {
+//     const users = require('../controllers/userController.js')
 
-    app.post('/api/userId', users.findInfoByUserId);
-}
+//     app.post('/user', users.findInfoByUserId);
+// }

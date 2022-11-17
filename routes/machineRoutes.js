@@ -1,5 +1,5 @@
-module.exports = app => {
-    const machines = require('../controllers/machineController.js')
+// module.exports = app => {
+//     const machines = require('../controllers/machineController.js')
     
-    app.post('/api/dormitory', machines.findAllReservation);
-}
+//     app.post('/dormitory', machines.findNowReservation);
+// }
