@@ -10,7 +10,8 @@ exports.getWeather = (req, res) => {
                     reject(err);
     
                 var list = body.list;
-    
+                console.log("type list", typeof(list))
+                console.log("type body", typeof(body.list))
                 var weather = new Array();
                 list.forEach(element => {
                     var date_weather = new Object();

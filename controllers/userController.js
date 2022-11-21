@@ -9,14 +9,14 @@ module.exports = {
             if(err) {
                 console.log(err);
                 if(err.message === 'not-exist') {
-                    res.status(404).send({
-                        message: `Not found userId with ${req.body.userId}`
-                    })
+                    res.status(404).send(
+                        `Not found userId with ${req.body.userId}`
+                    )
                 }
                 else {
-                    res.status(500).send({
-                        message: 'Server Unavailable'
-                    })
+                    res.status(500).send(
+                        'Server Unavailable'
+                    )
                 }
             }
             else
