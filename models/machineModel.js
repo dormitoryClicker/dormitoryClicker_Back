@@ -2,6 +2,7 @@ const mydb = require("./db.js");
 const { createPromise } = require('./createPromise.js');
 
 module.exports = {
+    
     getAllReservationByUserId: (dormitory, result) => {
         const query1 = "SELECT dormitory FROM member WHERE userId = ?";
 

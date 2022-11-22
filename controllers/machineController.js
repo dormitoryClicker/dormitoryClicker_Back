@@ -2,6 +2,7 @@ const Machine = require('../models/machineModel.js')
 const User = require('../models/userModel.js')
 
 module.exports = {
+    
     findAllReservation: (req, res) => {
         console.log("userId: ", req.body.userId);
         const userId = req.body.userId;

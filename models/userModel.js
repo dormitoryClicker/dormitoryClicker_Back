@@ -57,6 +57,7 @@ module.exports = {
         })
     },
 
+    
     findByUserId: (userId, result) => {
         const query = "SELECT * FROM " +
             "(SELECT userId, password, userName, dormitory, start, end FROM member LEFT JOIN reservation ON member.userId = reservation.member_userId) " +
