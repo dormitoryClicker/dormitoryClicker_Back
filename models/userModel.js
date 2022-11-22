@@ -39,6 +39,24 @@ module.exports = {
 
     },
 
+    findOne: (userId) => {
+        return new Promise((resolve, reject) => {
+            const query = "SELECT userId FROM member WHERE userId = ?";
+            mydb.query(query, userId, (err, res) => {
+                if (err) {
+                    console.log("error:", err);
+                    reject(err);
+                    return;
+                }
+                if(res.length) {
+                    resolve(res);
+                    return;
+                }
+                reject({message: 'not-exist'});
+            })
+        })
+    },
+
     findByUserId: (userId, result) => {
         const query = "SELECT * FROM " +
             "(SELECT userId, password, userName, dormitory, start, end FROM member LEFT JOIN reservation ON member.userId = reservation.member_userId) " +
