@@ -1,4 +1,5 @@
 const user = require("../models/userModel.js");
+const User = require('../models/userModel.js')
 
 module.exports = {
     findInfoByUserId: (req, res) => {
@@ -30,16 +31,16 @@ module.exports = {
         let password = req.body.password;
     
         try {
-          let result = await user.signIn(userId, password);
-          if (result.length != 1) {
-            res.send("failed");
-          }
-          else {
-            res.send("success");
-          }
+            let result = await user.signIn(userId, password);
+            if (result.length != 1) {
+                res.send("failed");
+            }
+            else {
+                res.send("success");
+            }
         }
         catch (e) {
-          res.send(e);
+            res.send(e);
         }
     
       },

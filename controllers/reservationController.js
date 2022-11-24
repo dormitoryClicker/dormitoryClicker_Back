@@ -109,6 +109,35 @@ module.exports = {
         catch (e) {
             res.send(e);
         }
+    },
+
+    cancelReservation: (req, res) => {
+        console.log('userId: ', req.body.userId);
+        const userId = req.body.userId;
+
+        user.findOne(userId)
+        .then(userInfo => {
+            reservation.delete(userInfo[0].userId, (err, result) => {
+                if(err) {
+                    console.log('error: ', err);
+                }
+                res.send(result);
+            })
+        })
+        .catch((err) => {
+            console.log(err);
+            if(err.message === 'not-exist') {
+                res.status(404).send(
+                    `Not found userId with ${req.body.userId}`
+                )
+            }
+            else {
+                res.status(500).send(
+                    'Server Unavailable'
+                )
+            }
+        })
+
     }
 
 }
