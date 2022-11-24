@@ -6,9 +6,21 @@ module.exports = {
     findAllReservation: (req, res) => {
         console.log("userId: ", req.body.userId);
         const userId = req.body.userId;
+        // {
+        //     domitory: "푸름1",
+        //     canReservation: 1,
+        //     machine: [
+        //      {W1: 0},
+        //      {W2: 0} 
+                // .
+                // .
+                // .    
+        //     ]
+        // }
 
         User.findOne(userId)
-        .then(() => {
+        .then((userInfo) => {
+            //console.log('userInfo', userInfo);
             Machine.getAllReservationByUserId(userId, (err, result) => {
                 if(err) {
                     console.log(err)
@@ -16,8 +28,17 @@ module.exports = {
                         'Server Unavailable'
                     )
                 }
-                else
-                    res.send(result);
+                else {
+                    var obj = {
+                        "userId": userInfo[0].userId,
+                        "dormitory": userInfo[0].dormitory,
+                        "canReservation": userInfo[0].canReservation,
+                        "machineStatus": result
+                    }
+                    // console.log("result: ", result);
+                    res.send(obj);
+
+                }
             })
         })
         .catch((err) => {

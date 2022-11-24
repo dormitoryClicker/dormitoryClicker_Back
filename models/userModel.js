@@ -41,7 +41,7 @@ module.exports = {
 
     findOne: (userId) => {
         return new Promise((resolve, reject) => {
-            const query = "SELECT userId FROM member WHERE userId = ?";
+            const query = "SELECT userId, dormitory, canReservation FROM member WHERE userId = ?";
             mydb.query(query, userId, (err, res) => {
                 if (err) {
                     console.log("error:", err);
