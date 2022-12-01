@@ -13,33 +13,41 @@ module.exports = {
     delete: (userId, result) => {
         const deleteSQL = 'delete from reservation where member_userId = ?';
         const updateSQL = 'update member set canReservation = 1 where userId = ?';
-        db.beginTransaction((err) => {
+
+        db.getConnection((err, conn) => {
             if(err) {
-                console.log('error: ', err);
-                result(err, null)
+                console.log("error : ", err);
+                result({message: 'db-error'}, null);
                 return;
             }
-            
-            db.query(deleteSQL, userId, (err, res) => {
+            conn.beginTransaction((err) => {
                 if(err) {
-                    return db.rollback(() => {
-                        console.log("error: ", err);
-                    })
-                } 
-                db.query(updateSQL, userId, (err, res) => {
+                    console.log('error: ', err);
+                    result(err, null)
+                    return;
+                }
+                
+                conn.query(deleteSQL, userId, (err, res) => {
                     if(err) {
-                        return db.rollback(() => {
+                        return conn.rollback(() => {
                             console.log("error: ", err);
                         })
-                    }
-                    db.commit((err) => {
+                    } 
+                    conn.query(updateSQL, userId, (err, res) => {
                         if(err) {
-                            return db.rollback(() => {
+                            return conn.rollback(() => {
                                 console.log("error: ", err);
                             })
                         }
-                    });
-                    result(null, "success");
+                        conn.commit((err) => {
+                            if(err) {
+                                return conn.rollback(() => {
+                                    console.log("error: ", err);
+                                })
+                            }
+                        });
+                        result(null, "success");
+                    })
                 })
             })
         })

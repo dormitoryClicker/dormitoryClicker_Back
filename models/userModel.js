@@ -39,6 +39,19 @@ module.exports = {
 
     },
 
+    updateCanReservation_1: function (userId) {
+        
+        return createPromise("Update member SET canReservation = 1 WHERE userId = '" + userId + "'");
+
+    },
+
+    //현재 시간을 지난 예약자들
+    overtimeUser: function () {
+
+        return createPromise("SELECT userId from member left join reservation on reservation.member_userId = member.userId where (timediff(reservation.end, now()+9) < 1)");
+
+    },
+
     findOne: (userId) => {
         return new Promise((resolve, reject) => {
             const query = "SELECT userId, dormitory, canReservation FROM member WHERE userId = ?";
@@ -61,32 +74,39 @@ module.exports = {
     updateDormitoryByUserId: (userId, dormitory, result) => {
         const query_update = "UPDATE member SET dormitory = ?, canReservation = 1 WHERE userId = ?";
         const query_delete = "DELETE FROM reservation WHERE member_userId = ?";
-        mydb.beginTransaction(err => {
+        mydb.getConnection((err, conn) => {
             if(err) {
-                console.log("error: ", err);
-                result(err, null);
+                console.log(err)
+                result({message: 'db-error'}, null);
                 return;
             }
-            mydb.query(query_update, [dormitory, userId], (err, res) => {
+            conn.beginTransaction(err => {
                 if(err) {
-                    return mydb.rollback(() => {
-                        console.log("error: ", err);
-                    })
+                    console.log("error: ", err);
+                    result(err, null);
+                    return;
                 }
-                mydb.query(query_delete, userId, (err, ress) => {
+                conn.query(query_update, [dormitory, userId], (err, res) => {
                     if(err) {
-                        return mydb.rollback(() => {
+                        return conn.rollback(() => {
                             console.log("error: ", err);
                         })
                     }
-                    mydb.commit((err) => {
+                    conn.query(query_delete, userId, (err, ress) => {
                         if(err) {
-                            return mydb.rollback(() => {
+                            return conn.rollback(() => {
                                 console.log("error: ", err);
                             })
                         }
-                    });
-                    result(null, "success");
+                        conn.commit((err) => {
+                            if(err) {
+                                return conn.rollback(() => {
+                                    console.log("error: ", err);
+                                })
+                            }
+                        });
+                        result(null, "success");
+                    })
                 })
             })
         })
@@ -119,33 +139,4 @@ module.exports = {
             this.reservation_time = res.start ? { start, end } : null;
         };
     }
-
 }
-
-// exports.findByUserId = (userId, result) => {
-//     const query = "SELECT * FROM " +
-//     "(SELECT userId, password, userName, dormitory, start, end FROM member LEFT JOIN reservation ON member.userId = reservation.member_userId) " +
-//     "AS user_info WHERE userId = ?";
-
-//     mydb.query(query, userId, (err, res) => {
-//         if(err) {
-//             console.log("error:", err);
-//             result(err, null)
-//             return;
-//         }
-//         if(res.length) {
-//             const u = new User(res[0], res[0].start, res[0].end)
-//             result(null, u);
-//             return;
-//         }
-//         result({message: 'not-exist'}, null);
-//     });
-
-//     function User(res, start, end) {
-//         this.userId = res.userId;
-//         //this.password = res.password;
-//         this.userName = res.userName;
-//         this.dormitory = res.dormitory;
-//         this.reservationTime = res.start?  {start, end} : null;
-//     };
-// }

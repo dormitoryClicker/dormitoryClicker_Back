@@ -1,7 +1,7 @@
 const mysql = require('mysql')
 const DBconfig = require('../config/db_config.js')
 
-const mydb = mysql.createConnection({
+const mydb = mysql.createPool({
     host: DBconfig.HOST,
     user: DBconfig.USER,
     password: DBconfig.PASSWORD,
@@ -9,12 +9,8 @@ const mydb = mysql.createConnection({
     dateStrings: 'date'
 })
 
-mydb.connect(err => {
-    if(err) {
-        console.log(err);
-        throw err;
-    }
+mydb.query("SELECT 1", () => {
     console.log("DB connection success");
-})
+});
 
 module.exports = mydb;

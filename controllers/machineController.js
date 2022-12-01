@@ -23,6 +23,8 @@ module.exports = {
         .then(async (userInfo) => {
             //console.log('userInfo', userInfo);
             const end = await Reservation.findEnd(userId);
+            const endTime = end.length ? end[0].end : null;
+
             Machine.getAllReservationByUserId(userId, (err, result) => {
                 if(err) {
                     console.log(err)
@@ -35,7 +37,7 @@ module.exports = {
                         "userId": userInfo[0].userId,
                         "dormitory": userInfo[0].dormitory,
                         "canReservation": userInfo[0].canReservation,
-                        "endDatetime": end[0].end,
+                        "endDatetime": endTime,
                         "machineStatus": result
                     }
                     // console.log("result: ", result);
