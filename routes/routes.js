@@ -11,5 +11,6 @@ router.get('/reservation', reservationController.doView);
 router.post('/user', userController.findInfoByUserId);
 router.post('/dormitory', machineController.findAllReservation);
 router.post('/cancel', reservationController.cancelReservation);
+router.post('/changeDormitory', userController.changeDormitory);
 
 module.exports = router;

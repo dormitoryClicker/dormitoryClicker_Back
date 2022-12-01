@@ -58,6 +58,39 @@ module.exports = {
         })
     },
 
+    updateDormitoryByUserId: (userId, dormitory, result) => {
+        const query_update = "UPDATE member SET dormitory = ?, canReservation = 1 WHERE userId = ?";
+        const query_delete = "DELETE FROM reservation WHERE member_userId = ?";
+        mydb.beginTransaction(err => {
+            if(err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            mydb.query(query_update, [dormitory, userId], (err, res) => {
+                if(err) {
+                    return mydb.rollback(() => {
+                        console.log("error: ", err);
+                    })
+                }
+                mydb.query(query_delete, userId, (err, ress) => {
+                    if(err) {
+                        return mydb.rollback(() => {
+                            console.log("error: ", err);
+                        })
+                    }
+                    mydb.commit((err) => {
+                        if(err) {
+                            return mydb.rollback(() => {
+                                console.log("error: ", err);
+                            })
+                        }
+                    });
+                    result(null, "success");
+                })
+            })
+        })
+    },
     
     findByUserId: (userId, result) => {
         const query = "SELECT * FROM " +

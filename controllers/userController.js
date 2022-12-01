@@ -1,5 +1,6 @@
 const user = require("../models/userModel.js");
-const User = require('../models/userModel.js')
+const User = require('../models/userModel.js');
+const mydb = require("../models/db.js");
 
 module.exports = {
     findInfoByUserId: (req, res) => {
@@ -22,6 +23,52 @@ module.exports = {
             }
             else
                 res.send(result);
+        })
+    },
+
+    changeDormitory: async (req, res) => {
+        var userId = req.body.userId;
+        var dormitory = req.body.dormitory;
+
+        User.findOne(userId)
+        .then(() => {
+            mydb.query("SELECT DISTINCT dormitory FROM machine", (err, result) => {
+                if(err) {
+                    console.log("error : ", err);
+                    res.status(500).send(
+                        `Server Unavailable`
+                    )
+                }
+                else if(!result.filter(m => m.dormitory === dormitory).length) {
+                    res.status(404).send(
+                        `Not found dormitory with ${req.body.dormitory}`
+                    )
+                }
+                else {
+                    User.updateDormitoryByUserId(userId, dormitory, (err, result) => {
+                        if(err) {
+                            console.log(err);
+                            res.status(500).send(
+                                `Server Unavailable`
+                            )
+                        }
+                        res.send(result);
+                    })
+                }
+            })
+        })
+        .catch((err) => {
+            console.log(err);
+            if(err.message === 'not-exist') {
+                res.status(404).send(
+                    `Not found userId with ${req.body.userId}`
+                )
+            }
+            else {
+                res.status(500).send(
+                    'Server Unavailable'
+                )
+            }
         })
     },
 
@@ -74,6 +121,8 @@ module.exports = {
         }
     
       }
+
+
 }
 
 // exports.findInfoByUserId = (req, res) => {
