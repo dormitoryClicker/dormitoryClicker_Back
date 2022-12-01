@@ -1,8 +1,9 @@
+const mydb = require('../models/db.js');
 const Machine = require('../models/machineModel.js')
 const User = require('../models/userModel.js')
+const Reservation = require('../models/reservationModel.js')
 
 module.exports = {
-    
     findAllReservation: (req, res) => {
         console.log("userId: ", req.body.userId);
         const userId = req.body.userId;
@@ -19,8 +20,9 @@ module.exports = {
         // }
 
         User.findOne(userId)
-        .then((userInfo) => {
+        .then(async (userInfo) => {
             //console.log('userInfo', userInfo);
+            const end = await Reservation.findEnd(userId);
             Machine.getAllReservationByUserId(userId, (err, result) => {
                 if(err) {
                     console.log(err)
@@ -33,6 +35,7 @@ module.exports = {
                         "userId": userInfo[0].userId,
                         "dormitory": userInfo[0].dormitory,
                         "canReservation": userInfo[0].canReservation,
+                        "endDatetime": end[0].end,
                         "machineStatus": result
                     }
                     // console.log("result: ", result);

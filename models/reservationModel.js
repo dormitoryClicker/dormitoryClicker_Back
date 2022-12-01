@@ -43,5 +43,9 @@ module.exports = {
                 })
             })
         })
+    },
+
+    findEnd: function(userId) {
+        return createPromise("SELECT end FROM reservation WHERE member_userId = '" + userId + "'" + "and timediff(end, now()) > 0");
     }
 }
