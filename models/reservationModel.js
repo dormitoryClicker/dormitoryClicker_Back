@@ -14,40 +14,32 @@ module.exports = {
         const deleteSQL = 'delete from reservation where member_userId = ?';
         const updateSQL = 'update member set canReservation = 1 where userId = ?';
 
-        db.getConnection((err, conn) => {
+        db.beginTransaction((err) => {
             if(err) {
-                console.log("error : ", err);
-                result({message: 'db-error'}, null);
+                console.log('error: ', err);
+                result(err, null)
                 return;
             }
-            conn.beginTransaction((err) => {
+            db.query(deleteSQL, userId, (err, res) => {
                 if(err) {
-                    console.log('error: ', err);
-                    result(err, null)
-                    return;
-                }
-                
-                conn.query(deleteSQL, userId, (err, res) => {
+                    return db.rollback(() => {
+                        console.log("error: ", err);
+                    })
+                } 
+                db.query(updateSQL, userId, (err, res) => {
                     if(err) {
-                        return conn.rollback(() => {
+                        return db.rollback(() => {
                             console.log("error: ", err);
                         })
-                    } 
-                    conn.query(updateSQL, userId, (err, res) => {
+                    }
+                    db.commit((err) => {
                         if(err) {
-                            return conn.rollback(() => {
+                            return db.rollback(() => {
                                 console.log("error: ", err);
                             })
                         }
-                        conn.commit((err) => {
-                            if(err) {
-                                return conn.rollback(() => {
-                                    console.log("error: ", err);
-                                })
-                            }
-                        });
-                        result(null, "success");
-                    })
+                    });
+                    result(null, "success");
                 })
             })
         })

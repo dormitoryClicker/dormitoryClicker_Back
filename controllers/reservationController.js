@@ -40,47 +40,38 @@ module.exports = {
                 //멤버정보 예약 불가능으로 수정
                 // await user.updateCanReservation(userId)
 
-                db.getConnection((err, conn) => {
-                    if(err) {
-                        console.log("error: ", err);
-                        res.send("database connection error")
-                        return;
-                    }
+                
+                db.beginTransaction(async (err) => {
+                    if (err)
+                        return
 
-                    conn.beginTransaction(async (err) => {
-                        if (err)
-                            return
-    
-                        await reservation.insertReservation(startDatetime, endDatetime, userId, result[0].idMachine)
-                            .catch((err) => {
-                                res.send("insert Error")
-                                return conn.rollback(() => {
-                                    console.log(err);
-                                })
-                            });
-    
-                        await user.updateCanReservation(userId)
-                            .then((result) => {
-                                res.send("success");
+                    await reservation.insertReservation(startDatetime, endDatetime, userId, result[0].idMachine)
+                        .catch((err) => {
+                            res.send("insert Error")
+                            return db.rollback(() => {
+                                console.log(err);
                             })
-                            .catch((err) => {
-                                res.send("updateReservation Error")
-                                return conn.rollback(() => {
-                                    console.log(err);
-                                })
-                            });
-    
-                        conn.commit((err) => {
-                            if (err) {
-                                return conn.rollback(() => {
-                                    console.log(err);
-                                })
-                            }
+                        });
+
+                    await user.updateCanReservation(userId)
+                        .then((result) => {
+                            res.send("success");
                         })
+                        .catch((err) => {
+                            res.send("updateReservation Error")
+                            return db.rollback(() => {
+                                console.log(err);
+                            })
+                        });
+
+                    db.commit((err) => {
+                        if (err) {
+                            return db.rollback(() => {
+                                console.log(err);
+                            })
+                        }
                     })
                 })
-
-
                 //res.send("success");
             }
         }

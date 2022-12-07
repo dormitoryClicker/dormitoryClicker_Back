@@ -1,28 +1,37 @@
 const user = require("../models/userModel.js");
-const User = require('../models/userModel.js');
-const db = require("../models/db.js");
+const User = require("../models/userModel.js");
+const db = require('../models/db.js');
 
 module.exports = {
     findInfoByUserId: (req, res) => {
         console.log('userId:', req.body.userId);
         const userId = req.body.userId;
 
-        user.findByUserId(userId, (err, result) => {
-            if (err) {
-                console.log(err);
-                if (err.message === 'not-exist') {
-                    res.status(404).send(
-                        `Not found userId with ${req.body.userId}`
-                    )
-                }
-                else {
+        User.findOne(userId)
+        .then(() => {
+            user.findByUserId(userId, (err, result) => {
+                if (err) {
+                    console.log(err);
                     res.status(500).send(
                         'Server Unavailable'
                     )
                 }
+                else
+                    res.send(result);
+            })
+        })
+        .catch((err) => {
+            console.log(err);
+            if(err.message === 'not-exist') {
+                res.status(404).send(
+                    `Not found userId with ${req.body.userId}`
+                )
             }
-            else
-                res.send(result);
+            else {
+                res.status(500).send(
+                    'Server Unavailable'
+                )
+            }
         })
     },
 
@@ -32,7 +41,7 @@ module.exports = {
 
         User.findOne(userId)
             .then(() => {
-                db.query("SELECT DISTINCT dormitory FROM machine", (err, result) => {
+                mydb.query("SELECT DISTINCT dormitory FROM machine", (err, result) => {
                     if (err) {
                         console.log("error : ", err);
                         res.status(500).send(
@@ -123,32 +132,29 @@ module.exports = {
     },
 
     resetReservation: async function () {
+        
         try {
             let result = await user.overtimeUser();
-            db.getConnection((err, conn) => {
-                conn.beginTransaction(async (err) => {
+            db.beginTransaction(async (err) => {
                     if (err)
                         return
-    
                     result.map(async (item) => {
                         await user.updateCanReservation_1(item.userId);
                     })
-    
-                    conn.commit((err) => {
+
+                    db.commit((err) => {
                         if (err) {
-                            return conn.rollback(() => {
+                            return db.rollback(() => {
                                 console.log(err);
                             })
                         }
                     })
+
                 })
-            })
         }
         catch (e) {
             console.log(e);
         }
 
     }
-
 }
-
