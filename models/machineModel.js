@@ -1,9 +1,9 @@
 const mydb = require("./db.js");
-const { createPromise } = require('./createPromise.js');
+const createPromise = require('./createPromise.js');
 
 module.exports = {
     
-    getAllReservationByUserId: (dormitory, result) => {
+    isWorkingNow: (dormitory, result) => {
         const query1 = "SELECT dormitory FROM member WHERE userId = ?";
 
         const query2 = "SELECT DISTINCT dormitory, machineNum FROM " +
@@ -43,14 +43,13 @@ module.exports = {
         })     
     },
 
-    searchIdMachine: function (dormitory, machineNum) {
+    selectMachineID: function (dormitory, machineNum) {
 
         return createPromise("SELECT idMachine FROM machine WHERE (dormitory = '" + dormitory + "' && machineNum = '" + machineNum + "')");
 
     },
 
-    //기기 예약 확인
-    searchMachineReservation: function (idMachine) {
+    selectAllReservationTime: function (idMachine) {
 
         return createPromise("SELECT start, end FROM reservation WHERE machine_idMachine = '" + idMachine + "'");
 

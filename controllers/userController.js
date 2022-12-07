@@ -1,15 +1,14 @@
 const user = require("../models/userModel.js");
-const User = require("../models/userModel.js");
 const db = require('../models/db.js');
 
 module.exports = {
-    findInfoByUserId: (req, res) => {
+    showUserInfo: (req, res) => {
         console.log('userId:', req.body.userId);
         const userId = req.body.userId;
 
-        User.findOne(userId)
+        user.findOne(userId)
         .then(() => {
-            user.findByUserId(userId, (err, result) => {
+            user.selectUserInfo(userId, (err, result) => {
                 if (err) {
                     console.log(err);
                     res.status(500).send(
@@ -39,7 +38,7 @@ module.exports = {
         var userId = req.body.userId;
         var dormitory = req.body.dormitory;
 
-        User.findOne(userId)
+        user.findOne(userId)
             .then(() => {
                 mydb.query("SELECT DISTINCT dormitory FROM machine", (err, result) => {
                     if (err) {
@@ -54,7 +53,7 @@ module.exports = {
                         )
                     }
                     else {
-                        User.updateDormitoryByUserId(userId, dormitory, (err, result) => {
+                        user.updateDormitory(userId, dormitory, (err, result) => {
                             if (err) {
                                 console.log(err);
                                 res.status(500).send(
@@ -87,7 +86,7 @@ module.exports = {
         let password = req.body.password;
 
         try {
-            let result = await user.signIn(userId, password);
+            let result = await user.checkUser(userId, password);
             if (result.length != 1) {
                 res.send("failed");
             }
@@ -115,13 +114,13 @@ module.exports = {
 
         try {
             //아이디 중복 확인
-            let result = await user.existId(userId);
+            let result = await user.checkDuplicationID(userId);
             if (result.length != 0) {
                 res.send("Id exists");
             }
             else {
                 //회원가입
-                await user.signUp(userId, password, userName, dormitory);
+                await user.insertUser(userId, password, userName, dormitory);
                 res.send("success");
             }
         }
@@ -139,7 +138,15 @@ module.exports = {
                     if (err)
                         return
                     result.map(async (item) => {
-                        await user.updateCanReservation_1(item.userId);
+                        await user.updateCanReservation_1(item.userId).catch(e => {
+                            db.commit((err) => {
+                                if (err) {
+                                    return db.rollback(() => {
+                                        console.log(err);
+                                    })
+                                }
+                            })
+                        });
                     })
 
                     db.commit((err) => {

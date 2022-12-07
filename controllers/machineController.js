@@ -1,10 +1,9 @@
-const mydb = require('../models/db.js');
 const Machine = require('../models/machineModel.js')
 const User = require('../models/userModel.js')
 const Reservation = require('../models/reservationModel.js')
 
 module.exports = {
-    findAllReservation: (req, res) => {
+    showCurrentState: (req, res) => {
         console.log("userId: ", req.body.userId);
         const userId = req.body.userId;
 
@@ -13,7 +12,7 @@ module.exports = {
             const end = await Reservation.findEnd(userId);
             const endTime = end.length ? end[0].end : null;
 
-            Machine.getAllReservationByUserId(userId, (err, result) => {
+            Machine.isWorkingNow(userId, (err, result) => {
                 if(err) {
                     console.log(err)
                     res.status(500).send(
@@ -28,7 +27,6 @@ module.exports = {
                         "endDatetime": endTime,
                         "machineStatus": result
                     }
-                    // console.log("result: ", result);
                     res.send(obj);
 
                 }

@@ -1,7 +1,7 @@
 const request = require('request')
 require('dotenv').config();
 
-exports.getWeather = (req, res) => {
+exports.callWeatherAPI = (req, res) => {
     const url = `https://api.openweathermap.org/data/2.5/forecast?lat=36.14524577397831&lon=128.39206568417444&appid=${process.env.KEY}`;
     
     const weather = new Promise((resolve, reject) => {

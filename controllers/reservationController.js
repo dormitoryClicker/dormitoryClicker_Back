@@ -1,12 +1,11 @@
 const reservation = require('../models/reservationModel');
 const user = require('../models/userModel');
 const machine = require('../models/machineModel');
-const db = require('../models/db.js')
+const db = require('../models/db.js');
 
 module.exports = {
 
-    doRegister: async function (req, res) {
-
+    doReservation: async function (req, res) {
         let userId = req.body.userId;
         let dormitory = req.body.dormitory;
         let machineNum = req.body.machineNum;
@@ -20,7 +19,7 @@ module.exports = {
 
         try {
             //예약 가능 확인
-            let result1 = await user.searchCanReservation(userId);
+            let result1 = await user.selectCanReservation(userId);
 
             if (result1[0].canReservation == false) {
                 console.log(result1);
@@ -28,19 +27,12 @@ module.exports = {
                 return;
             }
             //기기 id 확인
-            let result = await machine.searchIdMachine(dormitory, machineNum);
+            let result = await machine.selectMachineID(dormitory, machineNum);
 
             if (result.length != 1) {
                 res.send("There's no machine");
             }
-            else {
-                //예약 정보 삽입
-                // await reservation.insertReservation(startDatetime, endDatetime, userId, result[0].idMachine)
-
-                //멤버정보 예약 불가능으로 수정
-                // await user.updateCanReservation(userId)
-
-                
+            else {                
                 db.beginTransaction(async (err) => {
                     if (err)
                         return
@@ -72,7 +64,6 @@ module.exports = {
                         }
                     })
                 })
-                //res.send("success");
             }
         }
         catch (e) {
@@ -80,19 +71,19 @@ module.exports = {
         }
     },
 
-    doView: async function (req, res) {
+    showAllReservations: async function (req, res) {
         let dormitory = req.query.dormitory;
         let machineNum = req.query.machineNum;
 
         try {
             //기기 id 확인
-            let result1 = await machine.searchIdMachine(dormitory, machineNum);
+            let result1 = await machine.selectMachineID(dormitory, machineNum);
             if (result1.length != 1) {
                 res.send("There's no machine");
             }
             else {
                 //기기에 대한 예약 검색
-                let result2 = await machine.searchMachineReservation(result1[0].idMachine);
+                let result2 = await machine.selectAllReservationTime(result1[0].idMachine);
                 let start = [];
                 let end = [];
                 result2.map((item, i) => {
@@ -116,7 +107,7 @@ module.exports = {
 
         user.findOne(userId)
         .then(userInfo => {
-            reservation.delete(userInfo[0].userId, (err, result) => {
+            reservation.deleteReservation(userInfo[0].userId, (err, result) => {
                 if(err) {
                     console.log('error: ', err);
                 }

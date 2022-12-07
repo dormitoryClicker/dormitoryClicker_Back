@@ -3,7 +3,6 @@ const weathers = require('./controllers/weather.js')
 const cors = require('cors')
 let routes = require("./routes/routes.js");
 
-
 var app = express();
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
@@ -15,7 +14,7 @@ app.get("/", (req, res)=>{
     res.json({message: "Hello World!"});
 });
 
-app.get('/api/weather', weathers.getWeather);
+app.get('/api/weather', weathers.callWeatherAPI);
 
 const schedule = require('node-schedule');
 let userController = require('./controllers/userController');
