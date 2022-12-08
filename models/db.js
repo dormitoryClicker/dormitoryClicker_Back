@@ -2,10 +2,10 @@ const mysql = require('mysql')
 const DBconfig = require('../config/db_config.js')
 
 const mydb = mysql.createConnection({
-    host: DBconfig.HOST,
-    user: DBconfig.USER,
-    password: DBconfig.PASSWORD,
-    database: DBconfig.DATABASE,
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE_NAME,
     dateStrings: 'date'
 })
 
