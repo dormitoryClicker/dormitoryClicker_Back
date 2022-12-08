@@ -1,5 +1,4 @@
 const mysql = require('mysql')
-const DBconfig = require('../config/db_config.js')
 
 const mydb = mysql.createConnection({
     host: process.env.DATABASE_HOST,
